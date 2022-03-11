@@ -22,7 +22,7 @@ int Button::isPressed(){
     this->getState();
     return this->state==HIGH ? true : false;
 }
-
+ 
 int Button::isReleased(){
     this->getState();
     return this->state==LOW ? true : false;
