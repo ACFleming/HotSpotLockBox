@@ -3,129 +3,125 @@
 #include "HotSpot.hpp"
 
 
-// int keyIndex = 0;                // your network key Index number (needed only for WEP)
+int keyIndex = 0;                // your network key Index number (needed only for WEP)
 
-// int led =  LED_BUILTIN;
-// bool connected = false;
-
-
-// char ssid[] = "TelstraEDFA9F";     // the name of your network
-// char pass[] = "rnemzruand";     // the Wifi radio's status  
+int LED1 = 5;
+int LED2 = 7;
 
 
-// HotSpot user1;
-// HotSpot user2;
+int connected = 0;
 
-// WiFiServer server(80);
-
+bool button_pressed = false;
 
 
-// // constants won't change. They're used here to set pin numbers:
-// const int BUTTON_PIN = 2;       // the number of the pushbutton pin
-// int pressed = 0;
+//Only 2 logins available at a time
 
-// Button b = Button(BUTTON_PIN);
+HotSpot *user1 = NULL;
+HotSpot *user2 = NULL;
+
+int* test_pointer = NULL;
 
 
 
-// void setup()
-// {
+void setup()
+{
 
-//     Serial.begin(9600);
-//     while (!Serial) {
-//         ; // wait for serial port to connect. Needed for native USB port only
-//     }
+  //LED setup
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
 
-    
-//     if (WiFi.status() == WL_NO_SHIELD) {
-//         Serial.println("WiFi 101 Shield not present"); //TODO change to LCD print
-//         while (true);
-//     }
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(500);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(500);
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(500);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(500);
 
-//     b.setupButton();
-    
+  //Set up serial port
+  // int x = 8;
+  *test_pointer = 8; 
 
-//     //READ STORED LOGINS
-    
-//     // initialize digital pin LED_BUILTIN as an output.
-//     pinMode(LED_BUILTIN, OUTPUT);
-// }
-
-
-
-
-
-
-// void loop()
-// {
-//     while(true){
-//         digitalWrite(LED_BUILTIN, HIGH);
-//         Serial.println("LOOP");
-//         delay(1000);
-//         if(! connected){
-//             Serial.println("NOT CONNECTED");
-            
-//             user1 = HotSpot(String(ssid), String(pass), 0);
-//             connected = user1.connectToHotspot();
-            
-//         }else{
-//             Serial.println("CONNECTED. Begin server");
-//             server.begin();
-//         }
-        
-//         digitalWrite(LED_BUILTIN, LOW);
-//         Serial.println("HERE");
-//         delay(100);
-//         // if(b.isPressed()){
-//         //     pressed++;
-//         // };
-//         Serial.print(" Pressed? ");
-//         Serial.println(b.isPressed());
-//         Serial.print(" Released? ");
-//         Serial.println(b.isReleased());
-//     }
-    
-// }
-
-#include "Button.hpp"
-
-// constants won't change. They're used here to set pin numbers:
+  Serial.begin(9600);
+  delay(100);
+  Serial.println("BEGIN SETUP");
+  //Set up Wifi shield
+  if (WiFi.status() == WL_NO_SHIELD) {
+    Serial.println("WiFi 101 Shield not present"); //TODO change to LCD print
+    while (true);
+  }
+  Serial.println("WiFi 101 Shield  present");
 
 
-int button_low = 0;
-int button_high = 0;
-// Variables will change:
-int lastState = HIGH; // the previous state from the input pin
-int currentState;    // the current reading from the input pin
-Button b = Button(BUTTON_PIN);
+  //Read Logins
+  char ssid1[] = "TelstraEDFA9F";     // the name of your network
+  char pass1[] = "rnemzruand";     // the Wifi radio's status
+  
+  user1 = new HotSpot(ssid1, pass1, 1);
 
-void setup() {
-  // initialize serial communication at 9600 bits per second:
-  Serial.begin(115200);
-//   b.setupButton();
-  // initialize the pushbutton pin as an pull-up input
-  // the pull-up input pin will be HIGH when the switch is open and LOW when the switch is closed.
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
+
+
+
+  Serial.println("SETUP COMPLETE");
 }
 
-void loop() {
-  // read the state of the switch/button:
-  currentState = digitalRead(BUTTON_PIN);
-  Serial.print("CURRENT STATE: ");
-  Serial.println(currentState);
-  
-  if(lastState == LOW && currentState == HIGH)
-    // Serial.println("The state changed from LOW to HIGH");
-    button_high++;
-  if(lastState == HIGH && currentState == LOW)
-    // Serial.println("The state changed from HIGH to LOW");
-    button_low++;
-  // // save the last state
-  lastState = currentState;
-  delay(100);
-  Serial.print("BH: ");
-  Serial.print(button_high);
-  Serial.print(" BL:  ");
-  Serial.print(button_low);
-  Serial.println();
+
+
+
+
+
+void loop()
+{
+  char ssid1[] = "TelstraEDFA9F";     // the name of your network
+  char pass1[] = "rnemzruand";     // the Wifi radio's status
+  while (true) {
+    delay(100);
+    button_pressed = false;
+    if (button_pressed) {
+
+    } else {
+      Serial.println("Looking for connections!");
+      if (connected == 0) {
+        Serial.print("Looking to connect to ");
+        Serial.println(ssid1);
+        int status = WiFi.begin(ssid1, pass1);
+        // connected = user1->connectToHotspot();
+        delay(1000);
+        Serial.println(status);
+        if (status == WL_CONNECTED) {
+          connected = 1;
+          Serial.println("CONNECTED");
+          Serial.println(WiFi.RSSI());
+
+        }
+
+      }
+
+      if (connected == 0) {
+        // connected = user2->connectToHotspot();
+        connected = 2;
+      }
+
+
+    }
+    Serial.print("Connnection State: ");
+    Serial.println(connected);
+    Serial.print("TEST ");
+    Serial.println(*test_pointer);
+    if (connected == 1) {
+      digitalWrite(LED1, HIGH);
+      digitalWrite(LED2, LOW);
+    } else if (connected == 2) {
+      digitalWrite(LED1, LOW);
+      digitalWrite(LED2, HIGH);
+    } else {
+      digitalWrite(LED1, LOW);
+      digitalWrite(LED2, HIGH);
+    }
+
+
+  }
+
 }

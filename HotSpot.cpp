@@ -2,13 +2,13 @@
 
 HotSpot::HotSpot(){
     this->locker_number = -1;
-    this->network_name = "DEADBEEF";
-    this->password = "DEADBEEF";
+    this->network_name = (char*)"DEADBEEF";
+    this->password = (char*)"DEADBEEF";
     this->connection_status = WL_IDLE_STATUS;
 }
 
 
-HotSpot::HotSpot(String username, String password, int locker_num){
+HotSpot::HotSpot(char* username, char* password, int locker_num){
     this->locker_number = locker_num;
     this->network_name = username;
     this->password = password;
@@ -16,8 +16,15 @@ HotSpot::HotSpot(String username, String password, int locker_num){
 
 }
 
+void HotSpot::setLoginDetails(char* username, char* password){
+    this->network_name = username;
+    this->password = password;
+}
 
 
+bool HotSpot::isConnected(){
+    return this->connection_status;
+}
 
 
 
