@@ -20,10 +20,11 @@ public:
     HotSpot(char* username, char* password, int locker_num);
     void setLoginDetails(char* username, char*password);
     int getLockerNumber();
+    char* getUsername();
     bool isLocked();
     void lock();
     void unlock();
-    bool connectToHotspot();
+    bool connectToHotSpot();
     bool isConnected();
     
 };

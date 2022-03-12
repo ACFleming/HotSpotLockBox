@@ -16,15 +16,24 @@ bool button_pressed = false;
 
 //Only 2 logins available at a time
 
-HotSpot *user1 = NULL;
-HotSpot *user2 = NULL;
+HotSpot user1;
+HotSpot user2;
 
-int* test_pointer = NULL;
+
 
 
 
 void setup()
 {
+
+  //HARDWARE SETUP
+
+
+
+  //Set up serial port
+  Serial.begin(9600);
+  delay(100);
+  Serial.println("BEGIN HARDWARE SETUP");
 
   //LED setup
   pinMode(LED1, OUTPUT);
@@ -40,14 +49,13 @@ void setup()
   digitalWrite(LED_BUILTIN, LOW);
   delay(500);
 
-  //Set up serial port
-  // int x = 8;
-  *test_pointer = 8; 
+  //LCD SETUP
 
-  Serial.begin(9600);
-  delay(100);
-  Serial.println("BEGIN SETUP");
-  //Set up Wifi shield
+
+  //MOTOR SETUP
+
+
+  //WIFI SHIELD SETUP
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println("WiFi 101 Shield not present"); //TODO change to LCD print
     while (true);
@@ -55,16 +63,10 @@ void setup()
   Serial.println("WiFi 101 Shield  present");
 
 
-  //Read Logins
-  char ssid1[] = "TelstraEDFA9F";     // the name of your network
-  char pass1[] = "rnemzruand";     // the Wifi radio's status
-  
-  user1 = new HotSpot(ssid1, pass1, 1);
 
 
 
-
-  Serial.println("SETUP COMPLETE");
+  Serial.println("HARDWARE SETUP COMPLETE");
 }
 
 
@@ -74,42 +76,57 @@ void setup()
 
 void loop()
 {
-  char ssid1[] = "TelstraEDFA9F";     // the name of your network
-  char pass1[] = "rnemzruand";     // the Wifi radio's status
+
+
+  Serial.println("BEGIN SOFWARE SETUP");
+  //SOFTWARE SETUP
+  
+  //Read Logins
+  char ssid1[] = "DEADBEEF";     // the name of your network
+  char pass1[] = "DEADBEEF";     // the Wifi radio's status
+  char ssid2[] = "TelstraEDFA9F";     // the name of your network
+  char pass2[] = "rnemzruand";     // the Wifi radio's status
+
+  
+  HotSpot user1 =  HotSpot(ssid1, pass1, 1);
+  HotSpot user2 =  HotSpot(ssid2, pass2, 2);
+  
+
+  Serial.println(user1.getUsername());
+  Serial.println(user2.getUsername());
+
+  Serial.println("SOFTWARE SETUP COMPLETE");
+
+  //Main Loop
   while (true) {
     delay(100);
     button_pressed = false;
+
+    //Accepting New Users
     if (button_pressed) {
 
+              
+    //Looking for registered users
     } else {
       Serial.println("Looking for connections!");
-      if (connected == 0) {
-        Serial.print("Looking to connect to ");
-        Serial.println(ssid1);
-        int status = WiFi.begin(ssid1, pass1);
-        // connected = user1->connectToHotspot();
-        delay(1000);
-        Serial.println(status);
-        if (status == WL_CONNECTED) {
+      if (connected == 0) { 
+        if(user1.connectToHotSpot() == true){
           connected = 1;
-          Serial.println("CONNECTED");
-          Serial.println(WiFi.RSSI());
-
         }
-
       }
 
       if (connected == 0) {
-        // connected = user2->connectToHotspot();
-        connected = 2;
+        if(user2.connectToHotSpot()== true){
+          connected = 2;
+        }
       }
 
 
     }
+
+    //Displaying status
     Serial.print("Connnection State: ");
     Serial.println(connected);
-    Serial.print("TEST ");
-    Serial.println(*test_pointer);
     if (connected == 1) {
       digitalWrite(LED1, HIGH);
       digitalWrite(LED2, LOW);
@@ -118,7 +135,7 @@ void loop()
       digitalWrite(LED2, HIGH);
     } else {
       digitalWrite(LED1, LOW);
-      digitalWrite(LED2, HIGH);
+      digitalWrite(LED2, LOW);
     }
 
 
