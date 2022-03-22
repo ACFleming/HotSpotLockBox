@@ -27,6 +27,13 @@ char* HotSpot::getUsername(){
 
 
 bool HotSpot::isConnected(){
+    if(WiFi.RSSI() > -100){
+        this->connection_status = true;
+        Serial.println("Connected!");
+    }else{
+        this->connection_status = false;
+        Serial.println("Disconnected!");
+    }
     return this->connection_status;
 }
 
@@ -54,6 +61,5 @@ bool HotSpot::connectToHotSpot(){
         Serial.println(WiFi.getTime());
         
     }
-    Serial.println(this->connection_status);
     return this->connection_status;
 }
