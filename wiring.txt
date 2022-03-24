@@ -1,0 +1,5 @@
+MKR pin 14 goes to Due pin 8 TX->RX
+MKR pin 13 goes to Due pin 9 RX->TX
+
+5v power from Due to VIN MKR (done along board rails)
+Ground to ground
