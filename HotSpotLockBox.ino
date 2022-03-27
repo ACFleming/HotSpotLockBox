@@ -126,99 +126,99 @@ void loop()
 {
 
 
-  Serial.println("BEGIN SOFWARE SETUP");
-  //SOFTWARE SETUP
-  
-  //Read Logins
-  char ssid1[] = "DEADBEEF";     // the name of your network
-  char pass1[] = "DEADBEEF";     // the Wifi radio's status
-  char ssid2[] = "Testing";     // the name of your network
-  char pass2[] = "12345678";     // the Wifi radio's status
+    Serial.println("BEGIN SOFWARE SETUP");
+    //SOFTWARE SETUP
+    
+    //Read Logins
+    char ssid1[] = "DEADBEEF";     // the name of your network
+    char pass1[] = "DEADBEEF";     // the Wifi radio's status
+    char ssid2[] = "Testing";     // the name of your network
+    char pass2[] = "12345678";     // the Wifi radio's status
 
-  
-  HotSpot user1 =  HotSpot(ssid1, pass1, 1);
-  HotSpot user2 =  HotSpot(ssid2, pass2, 2);
-  
+    
+    HotSpot user1 =  HotSpot(ssid1, pass1, 1);
+    HotSpot user2 =  HotSpot(ssid2, pass2, 2);
+    
 
-  Serial.println(user1.getUsername());
-  Serial.println(user2.getUsername());
+    Serial.println(user1.getUsername());
+    Serial.println(user2.getUsername());
 
-  Serial.println("SOFTWARE SETUP COMPLETE");
+    Serial.println("SOFTWARE SETUP COMPLETE");
 
-  //Main Loop
-  while (true) {
-    delay(300);
-    button_pressed = false;
+    //Main Loop
+    while (true) {
+        delay(300);
+        button_pressed = false;
 
-    //Accepting New Users
-    if (button_pressed) {
+        //Accepting New Users
+        if (button_pressed) {
 
-              
-    //Looking for registered users
-    } else {
-        Serial.println("Looking for connections!");
-        setLCDLine("Connected to: ", 0);
-        LCDShow();
-        switch (connected)
-        {
-        case 0:
-            //Attempting to connect to the first nextwork
-            Serial.println("Connecting 1");
-            if(user1.connectToHotSpot() == true){
-                connected = 1;
-            
-            //Attempting to connect to the second network
-            Serial.println("Connecting 2");
-            }else if(user2.connectToHotSpot() == true){
-                connected = 2;
-            
+                
+        //Looking for registered users
+        } else {
+            Serial.println("Looking for connections!");
+            setLCDLine("Connected to: ", 0);
+            LCDShow();
+            switch (connected)
+            {
+            case 0:
+                //Attempting to connect to the first nextwork
+                Serial.println("Connecting 1");
+                if(user1.connectToHotSpot() == true){
+                    connected = 1;
+                
+                //Attempting to connect to the second network
+                Serial.println("Connecting 2");
+                }else if(user2.connectToHotSpot() == true){
+                    connected = 2;
+                
+                }
+                break;
+                
+                
+            case 1:
+                Serial.println("Checking 1");
+                if(user1.isConnected()){
+                    connected = 1;
+                }else{
+                    connected = 0;
+                }
+                break;
+            case 2:
+                Serial.println("Checking 2");
+                if(user2.isConnected()){
+                    connected = 2;
+                }else{
+                    connected = 0;
+                }
+                break;
+            default:
+                Serial.println("DEFAULT! No connections?? Invalid state!");
+                break;
             }
-            break;
-            
-            
-        case 1:
-            Serial.println("Checking 1");
-            if(user1.isConnected()){
-                connected = 1;
-            }else{
-                connected = 0;
-            }
-            break;
-        case 2:
-            Serial.println("Checking 2");
-            if(user2.isConnected()){
-                connected = 2;
-            }else{
-                connected = 0;
-            }
-            break;
-        default:
-            Serial.println("DEFAULT! No connections?? Invalid state!");
-            break;
+
         }
 
+        //Displaying status
+        Serial.print("Connnection State: ");
+        Serial.println(connected);
+        
+        if (connected == 1) {
+            digitalWrite(LED1, HIGH);
+            digitalWrite(LED2, LOW);
+            setLCDLine("1", 1);
+        } else if (connected == 2) {
+            digitalWrite(LED1, LOW);
+            digitalWrite(LED2, HIGH);
+            setLCDLine("2", 1);
+        } else {
+            digitalWrite(LED1, LOW);
+            digitalWrite(LED2, LOW);
+            setLCDLine("0", 1);
+        }
+        LCDShow();
+
+
     }
-
-    //Displaying status
-    Serial.print("Connnection State: ");
-    Serial.println(connected);
-    
-    if (connected == 1) {
-        digitalWrite(LED1, HIGH);
-        digitalWrite(LED2, LOW);
-        setLCDLine("1", 1);
-    } else if (connected == 2) {
-        digitalWrite(LED1, LOW);
-        digitalWrite(LED2, HIGH);
-        setLCDLine("2", 1);
-    } else {
-        digitalWrite(LED1, LOW);
-        digitalWrite(LED2, LOW);
-        setLCDLine("0", 1);
-    }
-    LCDShow();
-
-
-  }
 
 }
