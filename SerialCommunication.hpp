@@ -1,19 +1,5 @@
-#ifndef SERCOM
-#define SERCOM
+char READ_LOGINS[] = "read_logins\n";
+char PRINT_LCD[] = "print_lcd\n";
+char WRITE_LOGINS[] = "write_logins\n";
+char ACK[] = "ACK\n";
 
-
-
-
-
-class SerialCommunciation{
-private:
-    char* payload;
-
-public:
-    SerialCommunciation(char* payload);
-    char* getPayload();
-    
-};
-
-
-#endif
