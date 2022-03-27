@@ -107,7 +107,7 @@ void setup()
         while (true);
     }
     Serial.println("WiFi 101 Shield  present");
-    setLCDLine("WiFi 101 Shield  present", 0);
+    setLCDLine("WiFi present", 0);
     LCDShow();
 
 
@@ -157,7 +157,7 @@ void loop()
     //Looking for registered users
     } else {
         Serial.println("Looking for connections!");
-        setLCDLine("Looking for connections!", 0);
+        setLCDLine("Connected to: ", 0);
         LCDShow();
         switch (connected)
         {
@@ -169,7 +169,7 @@ void loop()
             
             //Attempting to connect to the second network
             Serial.println("Connecting 2");
-            }else if(user2.connectToHotSpot()== true){
+            }else if(user2.connectToHotSpot() == true){
                 connected = 2;
             
             }
@@ -202,7 +202,6 @@ void loop()
     //Displaying status
     Serial.print("Connnection State: ");
     Serial.println(connected);
-    setLCDLine("Connection State");
     
     if (connected == 1) {
         digitalWrite(LED1, HIGH);
@@ -215,6 +214,7 @@ void loop()
     } else {
         digitalWrite(LED1, LOW);
         digitalWrite(LED2, LOW);
+        setLCDLine("0", 1);
     }
     LCDShow();
 
