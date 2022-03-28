@@ -1,28 +1,17 @@
 #include <SPI.h>
 #include <WiFi101.h>
 #include "HotSpot.hpp"
-#include "HotSpot.hpp"]
-#include <LiquidCrystal.h>
+#include "LCD.hpp"
+#include "Motor.hpp"
 
-
-int keyIndex = 0;                // your network key Index number (needed only for WEP)
-
-int LED1 = 5;
-int LED2 = 7;
-
-
-int connected = 0;
-
-bool button_pressed = false;
-
-
-const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 
 //Only 2 logins available at a time
 
+Motor motor1;
+Motor motor2;
 
+Servo servo1;
 
 HotSpot user1;
 HotSpot user2;
@@ -30,36 +19,22 @@ HotSpot user2;
 char line0[21];
 char line1[21];
 
-void LCDShow(){
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print(line0);
-    lcd.setCursor(0,1);
-    lcd.print(line1);
-}
 
-void setLCDLine(char* s, int line=0){
-   
-   
-    if(line == 1){
-        memset(line1, 0, 21);
-        strcpy(line1, s);
-    }else{
-        memset(line0, 0, 21);
-        strcpy(line0,s);
-    }
-   
-}
 
-   
-void setLCDLine(String s, int line = 0){
-    if(line == 1){
-        s.toCharArray(line1, s.length());
-    }else{
-        s.toCharArray(line0, s.length());
-    }
-}
+int LED1 = 2;
+int LED2 = 3;
+int MOTOR1 = 4;
+int MOTOR2 = 5;
 
+int servo_pos = 0;
+
+int connected = 0;
+
+bool button_pressed = false;
+
+
+const int rs = 12, en = 11, d4 = 6, d5 = 7, d6 = 8, d7 = 9;
+LCD lcd(rs, en, d4, d5, d6, d7);
 
 
 
@@ -98,17 +73,30 @@ void setup()
 
     //MOTOR SETUP
 
+    motor1.attach(MOTOR1);  
+    delay(100);
+    motor1.setToAngle(0);
+    motor1.setToAngle(90); 
+
+    // servo1.attach(4);
+    // servo1.write(45);
+
+    motor2.attach(MOTOR2);
+    delay(100);
+    motor2.setToAngle(0);
+    motor2.setToAngle(90);
+
 
     //WIFI SHIELD SETUP
     if (WiFi.status() == WL_NO_SHIELD) {
         Serial.println("WiFi 101 Shield not present"); //TODO change to LCD print
-        setLCDLine("WiFi 101 Shield not present", 0);
-        LCDShow();
+        lcd.setLine("WiFi 101 Shield not present", 0);
+        lcd.show();
         while (true);
     }
     Serial.println("WiFi 101 Shield  present");
-    setLCDLine("WiFi present", 0);
-    LCDShow();
+    lcd.setLine("WiFi present", 0);
+    lcd.show();
 
 
 
@@ -157,8 +145,8 @@ void loop()
         //Looking for registered users
         } else {
             Serial.println("Looking for connections!");
-            setLCDLine("Connected to: ", 0);
-            LCDShow();
+            lcd.setLine("Connected to: ", 0);
+            lcd.show();
             switch (connected)
             {
             case 0:
@@ -206,17 +194,17 @@ void loop()
         if (connected == 1) {
             digitalWrite(LED1, HIGH);
             digitalWrite(LED2, LOW);
-            setLCDLine("1", 1);
+            lcd.setLine("1", 1);
         } else if (connected == 2) {
             digitalWrite(LED1, LOW);
             digitalWrite(LED2, HIGH);
-            setLCDLine("2", 1);
+            lcd.setLine("2", 1);
         } else {
             digitalWrite(LED1, LOW);
             digitalWrite(LED2, LOW);
-            setLCDLine("0", 1);
+            lcd.setLine("0", 1);
         }
-        LCDShow();
+        lcd.show();
 
 
     }

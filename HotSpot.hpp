@@ -1,5 +1,5 @@
-#ifndef HOTSPOT
-#define HOTSPOT
+#ifndef HOTSPOT_H
+#define HOTSPOT_H
 
 #include <SPI.h>
 #include <WiFi101.h>
