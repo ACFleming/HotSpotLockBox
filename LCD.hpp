@@ -14,6 +14,8 @@ public:
     void show();
     void setLine(const char* s, int line);
     void setLine(String s, int line);
+    void setBothLines(const char* s1, const char* s2);
+    void setBothLines(String s1, String s2);
 };
 
 #endif

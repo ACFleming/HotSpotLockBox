@@ -1,20 +1,19 @@
-
-
 #include "Button.hpp"
 
 
-Button::Button(int pin){
-    Button:Button(pin,HIGH);
+Button::Button(int p){
+    Button:Button(p,HIGH);
 }
 
 
-Button::Button(int pin, int state){
-    this->pin = pin;
-    this->state = state;
+Button::Button(int p, int s){
+    this->pin = p;
+    this->state = s;
 
 }
 
 void Button::setupButton(){
+    Serial.println(this->pin);
     pinMode(this->pin, INPUT_PULLUP);
 }
 
@@ -31,5 +30,13 @@ int Button::isReleased(){
 int Button::getState(){
     this->state = digitalRead(this->pin);
     return this->state;
+}
+
+int Button::getPin(){
+    return this->pin;
+}
+
+void Button::setPin(int p){
+    this->pin = pin;
 }
 

@@ -1,5 +1,5 @@
-#ifndef BUTTON
-#define BUTTON
+#ifndef BUTTON_H
+#define BUTTON_H
 
 #include <Arduino.h>
 
@@ -18,6 +18,8 @@ public:
     int getState();
     int isPressed();
     int isReleased();
+    int getPin();
+    void setPin(int p);
 };
 
 #endif

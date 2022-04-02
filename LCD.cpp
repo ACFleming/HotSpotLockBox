@@ -31,3 +31,13 @@ void LCD::setLine(String s, int line = 0){
         s.toCharArray(this->line0, s.length());
     }
 }
+
+void LCD::setBothLines(const char* s1, const char* s2){
+    this->setLine(s1,0);
+    this->setLine(s2,1);
+}
+
+void LCD::setBothLines(String s1, String s2){
+    this->setLine(s1,0);
+    this->setLine(s2,1);
+}
