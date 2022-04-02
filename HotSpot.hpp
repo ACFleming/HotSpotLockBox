@@ -27,6 +27,7 @@ public:
     void unlock();
     bool connectToHotSpot();
     bool isConnected();
+    bool checkLoginDetails(char* username, char* password);
     
 };
 

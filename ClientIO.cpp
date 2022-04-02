@@ -28,14 +28,24 @@ bool containsGetRequest(String haystack){
 bool errorDetails(WiFiClient client, int error_type){
     if(error_type == -1){
         client.println("<p style=\"color :red; \"> Passwords did not match</p>");
-
     }else if(error_type == -2){
         client.println("<p style=\"color :red; \"> Invalid characters in form</p>");
     }else if(error_type == -3){
         client.println("<p style=\"color :red; \"> Registration Failed. Network name already taken</p>");
     }else if(error_type == -4){
+        client.println("<p style=\"color :red; \"> Registration Failed. No locker is free for registration</p>");
+    }else if(error_type == -5){
         client.println("<p style=\"color :red; \"> Unregistration Failed. Network name not recognised</p>");
+    }else if(error_type == -6){
+        client.println("<p style=\"color :red; \"> Unregistration Failed. No lockers to unregister</p>");
+    }else if(error_type == 0){
+        client.println("<p style=\"color :green; \"> Unregistration Success. Locker freed</p>");
+    }else if(error_type == 1){
+        client.print("<p style=\"color :green; \"> Registration Success. Your locker is: 1 </p>");
+    }else if(error_type == 2){
+        client.print("<p style=\"color :green; \"> Registration Success. Your locker is: 2 </p>");
     }
+    
 }
 
 void detailsForm(WiFiClient client){
@@ -212,9 +222,9 @@ int parseUsernamePassword(String content, String &username, String &password, St
     username = content.substring(equals1+1, and1);
     password = content.substring(equals2+1, and2);
     password2 = content.substring(equals3+1);
-    Serial.println(username);
-    Serial.println(password);
-    Serial.println(password2);
+    // Serial.println(username);
+    // Serial.println(password);
+    // Serial.println(password2);
     if(password != password2){     //passwords dont match
         username="";
         password="";
@@ -222,18 +232,10 @@ int parseUsernamePassword(String content, String &username, String &password, St
         return -1;
     }
 
-    return 1;
+    return 0;
 
     
 
 
 }
 
-char* String2charStar(String s){
-    char* cs;
-    memset(cs, 0, 100);
-    s.toCharArray(cs, 100);
-
-    return cs;
-
-}

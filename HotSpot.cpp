@@ -71,3 +71,19 @@ bool HotSpot::connectToHotSpot(){
     }
     return this->connection_status;
 }
+
+bool HotSpot::checkLoginDetails(char* username, char* password){
+    Serial.print("u1 ");
+    Serial.print(this->network_name);
+    Serial.print(" u2 ");
+    Serial.println(username);
+    Serial.print("p1 ");
+    Serial.print(this->password);
+    Serial.print(" p2 ");
+    Serial.println(password);
+
+    if(strcmp(this->network_name,username)==0 && strcmp(this->password,password)==0){
+        return true;
+    }
+    return false;
+}

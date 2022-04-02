@@ -1,5 +1,6 @@
 #include <SPI.h>
 #include <WiFi101.h>
+#include <FlashStorage_SAMD.h>
 #include "HotSpot.hpp"
 #include "LCD.hpp"
 #include "Motor.hpp"
@@ -75,6 +76,8 @@ char* register_password;
 // String toString(const IPAddress& address){
 //   return String() + address[0] + "." + address[1] + "." + address[2] + "." + address[3];
 // }
+
+
 
 
 
@@ -339,8 +342,6 @@ void loop()
             digitalWrite(LED2, LOW);
 
             status = WiFi.beginAP("Register");
-            Serial.println("AM I LISTENING??");
-            Serial.println(status);
             if(status != WL_AP_LISTENING){
                 Serial.println(status);
                 lcd.setLine("ERROR",0);
@@ -357,7 +358,7 @@ void loop()
 
         }else if(curr_state == WAIT_REGISTER){
             
-            lcd.setBothLines("Connect to SSID", "Register");
+            lcd.setBothLines("Connect to", "SSID: Register");
             lcd.show();
             delay(1000);
             
@@ -369,7 +370,7 @@ void loop()
                     Serial.print("Device connected to AP, MAC address: ");
                     WiFi.APClientMacAddress(remoteMac);
                     printMacAddress(remoteMac);
-                    lcd.setBothLines("Connect to", "192.168.1.1");
+                    lcd.setBothLines("Go to", "192.168.1.1");
                     lcd.show();
                     curr_state = MAIN_REGISTER;
                     IPAddress ip = WiFi.localIP();
@@ -411,10 +412,10 @@ void loop()
                             Serial.println("Content");
                             content_buf = readResponseLine(client);
                             Serial.println(content_buf);
-                            String u1;
-                            String p1;
-                            String p2;
-                            parse_result = parseUsernamePassword(content_buf, u1, p1, p2);
+                            String username;
+                            String password1;
+                            String password2;
+                            parse_result = parseUsernamePassword(content_buf, username, password1, password2);
                             if(parse_result ==-1){
                                 Serial.println("Passwords didnt match");
                             }
@@ -423,17 +424,50 @@ void loop()
                             }
 
                             Serial.print("Username: ");
-                            Serial.println(u1);
+                            Serial.println(username);
                             Serial.print("Password: ");
-                            Serial.println(p1);
-                            if(display_page == REGISTER_PAGE && (u1==user1.getUsername() || u1==user2.getUsername())){ //Username is already used
-                                Serial.println("cant register ssid. Name already used");
-                                parse_result = -3;
+                            Serial.println(password1);
+                            char u[100];
+                            username.toCharArray(u, sizeof(u));
+                            char p[100];
+                            password1.toCharArray(p, sizeof(p));
+                            if(display_page == REGISTER_PAGE){
+                                if(username==user1.getUsername() || username==user2.getUsername()){ //Username is already used
+                                    Serial.println("cant register ssid. Name already used");
+                                    parse_result = -3;
+                                }else if(user1.isFree()){ 
+                                    user1 = HotSpot(u,p,1);
+                                    parse_result=1;
+                                }else if(user2.isFree()){
+                                    user2 = HotSpot(u,p,2);
+                                    parse_result=2;
+                                }else{ //No lockers free
+                                    Serial.println("No locker is free");
+                                    parse_result = -4;
+                                }
+
                             }
-                            if(display_page == UNREGISTER_PAGE && (u1!= user1.getUsername() && u1 != user2.getUsername())){ //Username is not stored
-                                Serial.print("cant unregister ssid. Name not found");
-                                parse_result = -4;
+                            if(display_page == UNREGISTER_PAGE){
+
+                                if(username!= user1.getUsername() && username != user2.getUsername()){ //Username is not stored
+                                    Serial.println("cant unregister ssid. Name not found");
+                                    parse_result = -5;
+                                }else if(user1.checkLoginDetails(u,p)){
+
+                                    Serial.println("Unregistered 1");
+                                    user1 = HotSpot();
+                                    parse_result = 0;
+                                }else if(user2.checkLoginDetails(u,p)){
+                                    Serial.println("Unregistered 2");
+                                    user2 = HotSpot();
+                                    parse_result=0;
+                                }else if(user1.isFree() && user2.isFree()){
+                                    Serial.println("nothing to unregister");
+                                    parse_result = -6;
+                                }
                             }
+                            Serial.println(user1.getUsername());
+                            Serial.println(user2.getUsername());
 
                             
                         }
@@ -450,13 +484,13 @@ void loop()
                     }
                     if(http_buf.startsWith("GET /register")){
                         display_page = REGISTER_PAGE;
-                        parse_result=0;
+                        parse_result=21;
                     }else if(http_buf.startsWith("GET /unregister")){
                         display_page = UNREGISTER_PAGE;
-                        parse_result=0;
+                        parse_result=21;
                     }else if(http_buf.startsWith("GET / ")){
                         display_page = HOME_PAGE;
-                        parse_result=0;
+                        parse_result=21;
                     }
 
                     if(http_buf.startsWith("Content")){            //Contains post request content

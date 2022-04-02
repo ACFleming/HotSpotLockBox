@@ -17,7 +17,7 @@ void detailsForm(WiFiClient client);
 void registerHref(WiFiClient client);
 void unregisterHref(WiFiClient client);
 
-char* String2charStar(String s);
+// char* String2charStar(String s);
 int parseUsernamePassword(String content, String &username, String &password, String& password2);
 
 
