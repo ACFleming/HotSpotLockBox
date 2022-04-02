@@ -31,16 +31,16 @@ Motor motor2;
 
 Servo servo1;
 
-HotSpot user1;
-HotSpot user2;
+HotSpot user1 = HotSpot();
+HotSpot user2 = HotSpot();
 
 char line0[21];
 char line1[21];
 
-char* ssid1 = "";
-char* pass1 = "";
-char* ssid2 = "";
-char* pass2 = "";
+String ssid1 = "";
+String pass1 = "";
+String ssid2 = "";
+String pass2 = "";
 
 
 
@@ -75,7 +75,16 @@ char* register_password;
 
 // String toString(const IPAddress& address){
 //   return String() + address[0] + "." + address[1] + "." + address[2] + "." + address[3];
-// }
+// }'
+
+
+void toCString(String s, char* cs){
+    int i;
+    for(i = 0; i < s.length(); i++){
+        cs[i] = s.charAt(i);
+    }
+    cs[i] = '\0';
+}
 
 
 
@@ -137,19 +146,25 @@ void setup()
     lcd.cursor();
 
     //MOTOR SETUP
-
-    motor1.attach(MOTOR1);  
-    delay(100);
     motor1.setToAngle(0);
-    motor1.setToAngle(90); 
+    motor1.attach(MOTOR1);  
+    motor1.setToAngle(50);
+    motor1.setToAngle(10);
+    motor1.setToAngle(90);
+    motor1.setToAngle(0);
+    delay(100);
+
 
     // servo1.attach(4);
     // servo1.write(45);
-
-    motor2.attach(MOTOR2);
-    delay(100);
     motor2.setToAngle(0);
+    motor2.attach(MOTOR2);
+    motor2.setToAngle(50);
+    motor2.setToAngle(10);
     motor2.setToAngle(90);
+    motor2.setToAngle(0);
+    delay(100);
+
 
     //BUTTOM SETUP
     Serial.println("BUTTON SETUP");
@@ -195,9 +210,23 @@ void loop()
 
     register_password = (char *)"";
 
+    ssid1 = "DEADBEEF";     // the name of your network
+    pass1 = "DEADBEEF";     // the Wifi radio's status
+    ssid2 = "";     // the name of your network
+    pass2 = "";     // the Wifi radio's status
 
-    
-
+    if(ssid1.length() > 0 && pass1.length() > 0 ){
+        Serial.println("LOADING USER1");
+        user1 =  HotSpot(ssid1, pass1, 1);
+    }else{
+        user1 = HotSpot();
+    }
+    if(ssid2.length() > 0 && pass2.length() > 0 ){
+        Serial.println("LOADING USER2");
+        user2 =  HotSpot(ssid2, pass2, 2);
+    }else{
+        user2 = HotSpot();
+    }
 
     
     
@@ -233,24 +262,15 @@ void loop()
             digitalWrite(LED1, LOW);
             digitalWrite(LED2, HIGH);
             //TODO read in login details
-            ssid1 = "DEADBEEF\0";     // the name of your network
-            pass1 = "DEADBEEF\0";     // the Wifi radio's status
-            ssid2 = "Testing\0";     // the name of your network
-            pass2 = "12345678\0";     // the Wifi radio's status
+            Serial.println(user1.getUsername());
+            Serial.println(user2.getUsername());
+
+
+
 
             //Create users from login details
-            Serial.println("STRLEN");
-            Serial.println(strlen(ssid1));
-            if(strlen(ssid1) > 0 && strlen(pass1) > 0 ){
-                user1 =  HotSpot(ssid1, pass1, 1);
-            }else{
-                user1 = HotSpot();
-            }
-            if(strlen(ssid2) > 0 && strlen(pass2) > 0 ){
-                user2 =  HotSpot(ssid2, pass2, 2);
-            }else{
-                user2 = HotSpot();
-            }
+
+
             curr_state = MAIN_LOGIN;
             // Serial.println("Back to the top");  
             continue;
@@ -265,9 +285,7 @@ void loop()
                 lcd.setBothLines("Looking for", "Connections");
                 lcd.show();
                
-                Serial.println("Attempt connection to user 1");
-                Serial.print("User 1 locker number: ");
-                Serial.println(user1.getLockerNumber());     
+                Serial.println("Attempt connection to user 1");    
                 if(user1.getLockerNumber() != -1 && user1.connectToHotSpot() == true){
                     connected = 1;
                     break;
@@ -303,16 +321,22 @@ void loop()
             
             if (connected == 1) {
                 //TODO Motor go brrr
+                motor1.setToAngle(90);
+                motor2.setToAngle(0);
                 //Open door 1
                 //Close door 2
                 lcd.setBothLines("Connected to: ", user1.getUsername());
                 
             } else if (connected == 2) {
                 //TODO Motor go brr
+                motor1.setToAngle(0);
+                motor2.setToAngle(90);
                 //Open door 2
                 //Close door 1
                 lcd.setBothLines("Connected to: ", user2.getUsername());
             } else {
+                motor1.setToAngle(0);
+                motor2.setToAngle(0);
                 //TODO Motor go brr
                 //Close door 1
                 //Close door 2
@@ -427,20 +451,41 @@ void loop()
                             Serial.println(username);
                             Serial.print("Password: ");
                             Serial.println(password1);
-                            char u[100];
-                            username.toCharArray(u, sizeof(u));
-                            char p[100];
-                            password1.toCharArray(p, sizeof(p));
+                            // char u[100];
+                            // toCString(username, u);
+                            // Serial.println(strlen(u));
+                            // char p[100];
+                            // toCString(password1,p);
+                            // Serial.println(strlen(p));
                             if(display_page == REGISTER_PAGE){
-                                if(username==user1.getUsername() || username==user2.getUsername()){ //Username is already used
+                                if(parse_result!= 0){
+                                    Serial.println("Parse Error");
+                                }else if(username==user1.getUsername() || username==user2.getUsername()){ //Username is already used
                                     Serial.println("cant register ssid. Name already used");
                                     parse_result = -3;
                                 }else if(user1.isFree()){ 
-                                    user1 = HotSpot(u,p,1);
+                                    user1 = HotSpot(username,password1,1);
                                     parse_result=1;
+                                    ssid1 = username;
+                                    pass1 = password1;
+                                    // Serial.println(ssid1);
+                                    // Serial.println(u);
+                                    // Serial.println(pass1);
+                                    // Serial.println(p);
+                                    // strncpy(ssid1,u, sizeof(u));
+                                    // strncpy(pass1,p,sizeof(p));
+                                    
                                 }else if(user2.isFree()){
-                                    user2 = HotSpot(u,p,2);
+                                    user2 = HotSpot(username,password1,2);
                                     parse_result=2;
+                                    ssid2 = username;
+                                    pass2 = password1;
+                                    // Serial.println(ssid2);
+                                    // Serial.println(u);
+                                    // Serial.println(pass2);
+                                    // Serial.println(p);
+                                    // strncpy(ssid2,u, sizeof(u));
+                                    // strncpy(pass2,p,sizeof(p));
                                 }else{ //No lockers free
                                     Serial.println("No locker is free");
                                     parse_result = -4;
@@ -448,16 +493,16 @@ void loop()
 
                             }
                             if(display_page == UNREGISTER_PAGE){
-
-                                if(username!= user1.getUsername() && username != user2.getUsername()){ //Username is not stored
+                                if(parse_result!= 0){
+                                    Serial.println("Parse Error");
+                                }else if(username!= user1.getUsername() && username != user2.getUsername()){ //Username is not stored
                                     Serial.println("cant unregister ssid. Name not found");
                                     parse_result = -5;
-                                }else if(user1.checkLoginDetails(u,p)){
-
+                                }else if(user1.checkLoginDetails(username,password1)){
                                     Serial.println("Unregistered 1");
                                     user1 = HotSpot();
                                     parse_result = 0;
-                                }else if(user2.checkLoginDetails(u,p)){
+                                }else if(user2.checkLoginDetails(username,password1)){
                                     Serial.println("Unregistered 2");
                                     user2 = HotSpot();
                                     parse_result=0;
@@ -509,7 +554,14 @@ void loop()
             
         }else if(curr_state == STOP_REGISTER){ //TODO
             //write logins to flash
-            // Serial.println("Back to the top");  
+            // Serial.println("Back to the top");
+            Serial.println("Disconnecting");
+            WiFi.disconnect();
+            WiFi.end();
+            lcd.setBothLines("Changing to", "login mode");
+            lcd.show();
+            delay(5000);
+            curr_state = INIT_LOGIN;
             continue;
         }
         

@@ -9,25 +9,25 @@ const int BUTTON_PIN = 7; // the number of the pushbutton pin
 //Class for storing the Hotspot details
 class HotSpot{
 private:
-    char* network_name;
-    char* password;
+    String network_name;
+    String password;
     int locker_number;
     bool locked;
     bool connection_status;
 
 public:
     HotSpot();
-    HotSpot(char* username, char* password, int locker_num);
-    void setLoginDetails(char* username, char*password);
+    HotSpot(String username, String password, int locker_num);
+    void setLoginDetails(String username, String password);
     int getLockerNumber();
     bool isFree();
-    char* getUsername();
+    String getUsername();
     bool isLocked();
     void lock();
     void unlock();
     bool connectToHotSpot();
     bool isConnected();
-    bool checkLoginDetails(char* username, char* password);
+    bool checkLoginDetails(String username, String password);
     
 };
 

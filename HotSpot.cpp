@@ -15,7 +15,7 @@ bool HotSpot::isFree(){
     return this->locker_number==-1;
 }
 
-HotSpot::HotSpot(char* username, char* password, int locker_num){
+HotSpot::HotSpot(String username, String password, int locker_num){
     this->locker_number = locker_num;
     this->network_name = username;
     this->password = password;
@@ -23,12 +23,12 @@ HotSpot::HotSpot(char* username, char* password, int locker_num){
 
 }
 
-void HotSpot::setLoginDetails(char* username, char* password){
+void HotSpot::setLoginDetails(String username, String password){
     this->network_name = username;
     this->password = password;
 }
 
-char* HotSpot::getUsername(){
+String HotSpot::getUsername(){
     return this->network_name;
 }
 
@@ -72,7 +72,7 @@ bool HotSpot::connectToHotSpot(){
     return this->connection_status;
 }
 
-bool HotSpot::checkLoginDetails(char* username, char* password){
+bool HotSpot::checkLoginDetails(String username, String password){
     Serial.print("u1 ");
     Serial.print(this->network_name);
     Serial.print(" u2 ");
@@ -82,7 +82,7 @@ bool HotSpot::checkLoginDetails(char* username, char* password){
     Serial.print(" p2 ");
     Serial.println(password);
 
-    if(strcmp(this->network_name,username)==0 && strcmp(this->password,password)==0){
+    if(username == this->network_name && this->password == password){
         return true;
     }
     return false;

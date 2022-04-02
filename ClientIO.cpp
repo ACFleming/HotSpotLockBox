@@ -27,7 +27,7 @@ bool containsGetRequest(String haystack){
 
 bool errorDetails(WiFiClient client, int error_type){
     if(error_type == -1){
-        client.println("<p style=\"color :red; \"> Passwords did not match</p>");
+        client.println("<p style=\"color :red; \"> Passwords must match and be 8 characters or longer</p>");
     }else if(error_type == -2){
         client.println("<p style=\"color :red; \"> Invalid characters in form</p>");
     }else if(error_type == -3){
@@ -225,12 +225,13 @@ int parseUsernamePassword(String content, String &username, String &password, St
     // Serial.println(username);
     // Serial.println(password);
     // Serial.println(password2);
-    if(password != password2){     //passwords dont match
+    if(password != password2 || password.length() < 8){     //passwords dont match
         username="";
         password="";
         password2="";
         return -1;
     }
+
 
     return 0;
 
