@@ -24,6 +24,20 @@ bool containsGetRequest(String haystack){
 }
 
 
+
+bool errorDetails(WiFiClient client, int error_type){
+    if(error_type == -1){
+        client.println("<p style=\"color :red; \"> Passwords did not match</p>");
+
+    }else if(error_type == -2){
+        client.println("<p style=\"color :red; \"> Invalid characters in form</p>");
+    }else if(error_type == -3){
+        client.println("<p style=\"color :red; \"> Registration Failed. Network name already taken</p>");
+    }else if(error_type == -4){
+        client.println("<p style=\"color :red; \"> Unregistration Failed. Network name not recognised</p>");
+    }
+}
+
 void detailsForm(WiFiClient client){
     client.println("<form id=\"login-form\" action=\"\" method=\"post\">");    
     client.println("<label>Network name (SSID):</label>");
@@ -104,13 +118,13 @@ void writeRegisterHTML(WiFiClient client){
 
 }
 
-void writeRegisterHTML(WiFiClient client, bool locker1_free, bool locker2_free){
+void writeRegisterHTML(WiFiClient client, bool locker1_free, bool locker2_free, int error_type){
     //HTTP header
     client.println("HTTP/1.1 200 OK");
     client.println("Content-type:text/html");
     
     client.println();
-
+    errorDetails(client, error_type);
     registerTitle(client);
     detailsForm(client);
     unregisterHref(client);
@@ -137,13 +151,13 @@ void writeUnregisterHTML(WiFiClient client){
 }
 
 
-void writeUnregisterHTML(WiFiClient client, bool locker1_free, bool locker2_free){
+void writeUnregisterHTML(WiFiClient client, bool locker1_free, bool locker2_free, int error_type){
     //HTTP header
     client.println("HTTP/1.1 200 OK");
     client.println("Content-type:text/html");
     
     client.println();
-
+    errorDetails(client, error_type);
     unregisterTitle(client);
     detailsForm(client);
     registerHref(client);
@@ -158,6 +172,7 @@ void writeHomeHTML(WiFiClient client){
     client.println();
 
     registerHref(client);
+    client.println("<br>");
     unregisterHref(client);
     client.println();  
 

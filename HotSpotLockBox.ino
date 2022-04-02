@@ -53,6 +53,7 @@ int servo_pos;
 
 int connected;
 int display_page = HOME_PAGE;
+int parse_result;
 
 int curr_state;
 
@@ -399,11 +400,13 @@ void loop()
                 Serial.println("Client connected");  
                 bool read_content = false;       
                 http_buf = "";
-                content_buf = "";                
+                content_buf = "";
+                                
                 while (client.connected()) {            
                     http_buf = readResponseLine(client);          
                     Serial.println(http_buf);
                     if (http_buf.length() == 0) {
+                        
                         if(read_content){
                             Serial.println("Content");
                             content_buf = readResponseLine(client);
@@ -411,11 +414,11 @@ void loop()
                             String u1;
                             String p1;
                             String p2;
-                            int register_result = parseUsernamePassword(content_buf, u1, p1, p2);
-                            if(register_result ==-1){
+                            parse_result = parseUsernamePassword(content_buf, u1, p1, p2);
+                            if(parse_result ==-1){
                                 Serial.println("Passwords didnt match");
                             }
-                            if(register_result ==-2){
+                            if(parse_result ==-2){
                                 Serial.println("invalid characters in post request");
                             }
 
@@ -423,29 +426,37 @@ void loop()
                             Serial.println(u1);
                             Serial.print("Password: ");
                             Serial.println(p1);
-                            if(u1==user1.getUsername() || u1==user2.getUsername()){
-                                Serial.println("duplicate ssid");
+                            if(display_page == REGISTER_PAGE && (u1==user1.getUsername() || u1==user2.getUsername())){ //Username is already used
+                                Serial.println("cant register ssid. Name already used");
+                                parse_result = -3;
+                            }
+                            if(display_page == UNREGISTER_PAGE && (u1!= user1.getUsername() && u1 != user2.getUsername())){ //Username is not stored
+                                Serial.print("cant unregister ssid. Name not found");
+                                parse_result = -4;
                             }
 
                             
                         }
                         // writeHomeHTML(client);
                         if(display_page == REGISTER_PAGE ){
-                            writeRegisterHTML(client, user1.isOccupied(), user2.isOccupied());
+                            writeRegisterHTML(client, user1.isFree(), user2.isFree(), parse_result);
                         }else if(display_page == UNREGISTER_PAGE){
-                            writeUnregisterHTML(client, user1.isOccupied(), user2.isOccupied());
+                            writeUnregisterHTML(client, user1.isFree(), user2.isFree(), parse_result);
                         }else{
-                            writeHomeHTML(client, user1.isOccupied(), user2.isOccupied());
+                            writeHomeHTML(client, user1.isFree(), user2.isFree());
                         }
                         
                         break;
                     }
                     if(http_buf.startsWith("GET /register")){
                         display_page = REGISTER_PAGE;
+                        parse_result=0;
                     }else if(http_buf.startsWith("GET /unregister")){
                         display_page = UNREGISTER_PAGE;
+                        parse_result=0;
                     }else if(http_buf.startsWith("GET / ")){
                         display_page = HOME_PAGE;
+                        parse_result=0;
                     }
 
                     if(http_buf.startsWith("Content")){            //Contains post request content

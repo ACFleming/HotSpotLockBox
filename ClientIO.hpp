@@ -8,9 +8,9 @@ String readResponseLine(WiFiClient client);
 bool containsGetRequest(String s);
 
 void writeRegisterHTML(WiFiClient client);
-void writeRegisterHTML(WiFiClient client, bool locker1_free, bool locker2_free);
+void writeRegisterHTML(WiFiClient client, bool locker1_free, bool locker2_free, int error_type);
 void writeUnregisterHTML(WiFiClient client);
-void writeUnregisterHTML(WiFiClient client, bool locker1_free, bool locker2_free);
+void writeUnregisterHTML(WiFiClient client, bool locker1_free, bool locker2_free, int error_type);
 void writeHomeHTML(WiFiClient client);
 void writeHomeHTML(WiFiClient client,  bool locker1_free, bool locker2_free);
 void detailsForm(WiFiClient client);

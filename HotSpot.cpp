@@ -11,8 +11,8 @@ int HotSpot::getLockerNumber(){
     return this->locker_number;
 }
 
-bool HotSpot::isOccupied(){
-    return this->locker_number!=-1;
+bool HotSpot::isFree(){
+    return this->locker_number==-1;
 }
 
 HotSpot::HotSpot(char* username, char* password, int locker_num){
