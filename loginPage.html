@@ -1,15 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-
-
 <body>
+    <h1>Fill in the details to register your Hotspot to a locker</h1>
     <form id="login-form" action="" method="post">
-      <input type="text" name="username" id="username-field" class="login-form-field" placeholder="Username">
-      <input type="password" name="password" id="password-field" class="login-form-field" placeholder="Password">
-      <input type="submit" value="Login" id="login-form-submit">
-    </form>
-  
-  </main>
-</body>
+            
+        <label>Network name (SSID):</label>
+         
+        <input type="text" name="username" id="username-field" class="login-form-field" placeholder="SSID">
+        <br>
+        <label>Network password:</label>
+         <input type="password" name="password" id="password-field" class="login-form-field" placeholder="Network password">
+        <br>
+        <label>Retype password: </label>
+        <input type="password" name="password2" id="password-field" class="login-form-field" placeholder="Retype password">
+        <br>
+        <br>
+        <input type="submit" value="Register" id="login-form-submit">
 
+    </form>
+    <a href="/unregister">Click to unregister</a> 
+
+</body>
 </html>

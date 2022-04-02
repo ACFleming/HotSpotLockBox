@@ -17,6 +17,10 @@
 #define STOP_REGISTER 6
 
 
+#define HOME_PAGE 20
+#define REGISTER_PAGE 21
+#define UNREGISTER_PAGE 22
+
 
 
 //Only 2 logins available at a time
@@ -48,7 +52,7 @@ const int SWITCH1 = 14;
 int servo_pos;
 
 int connected;
-
+int display_page = HOME_PAGE;
 
 int curr_state;
 
@@ -303,7 +307,7 @@ void loop()
                 //TODO Motor go brr
                 //Open door 2
                 //Close door 1
-                lcd.setBothLines("Connected to: ", user1.getUsername());
+                lcd.setBothLines("Connected to: ", user2.getUsername());
             } else {
                 //TODO Motor go brr
                 //Close door 1
@@ -332,9 +336,7 @@ void loop()
             /* code */
             digitalWrite(LED1, HIGH);
             digitalWrite(LED2, LOW);
-            lcd.setBothLines("Connect to SSID", "Register");
-            lcd.show();
-            delay(1000);
+
             status = WiFi.beginAP("Register");
             Serial.println("AM I LISTENING??");
             Serial.println(status);
@@ -345,9 +347,7 @@ void loop()
             }
 
             
-            server.begin();
-            delay(5000);
-            Serial.println("Server begun");
+
 
             curr_state = WAIT_REGISTER;
             // Serial.println("Back to the top");  
@@ -356,7 +356,9 @@ void loop()
 
         }else if(curr_state == WAIT_REGISTER){
             
-            
+            lcd.setBothLines("Connect to SSID", "Register");
+            lcd.show();
+            delay(1000);
             
             if(status != WiFi.status()){
                 status = WiFi.status();
@@ -372,7 +374,9 @@ void loop()
                     IPAddress ip = WiFi.localIP();
                     Serial.print("http://");
                     Serial.println(ip);
-                    delay(3000);
+                    server.begin();
+                    delay(5000);
+                    Serial.println("Server begun");
                     
 
                 }
@@ -389,7 +393,8 @@ void loop()
                 curr_state = WAIT_REGISTER;
                 continue;
             }
-            
+            // Serial.println("Waiting for client");
+           
             if (client) {                             
                 Serial.println("Client connected");  
                 bool read_content = false;       
@@ -403,32 +408,54 @@ void loop()
                             Serial.println("Content");
                             content_buf = readResponseLine(client);
                             Serial.println(content_buf);
-                            char* u1 = "";
-                            char* p1 = "";
-                            if(parseUsernamePassword(content_buf, u1, p1)){
-                                Serial.println(u1);
-                                Serial.println(p1);
+                            String u1;
+                            String p1;
+                            String p2;
+                            int register_result = parseUsernamePassword(content_buf, u1, p1, p2);
+                            if(register_result ==-1){
+                                Serial.println("Passwords didnt match");
                             }
-                        }
+                            if(register_result ==-2){
+                                Serial.println("invalid characters in post request");
+                            }
 
+                            Serial.print("Username: ");
+                            Serial.println(u1);
+                            Serial.print("Password: ");
+                            Serial.println(p1);
+                            if(u1==user1.getUsername() || u1==user2.getUsername()){
+                                Serial.println("duplicate ssid");
+                            }
+
+                            
+                        }
                         
-                        writeRegisterHTML(client);
+                        if(display_page == REGISTER_PAGE ){
+                            Serial.println("DISPLAYING REGISTER");
+                            
+                            writeRegisterHTML(client, user1.isOccupied(), user2.isOccupied());
+                        }else if(display_page == UNREGISTER_PAGE){
+                            writeUnregisterHTML(client, user1.isOccupied(), user2.isOccupied());
+                            Serial.println("DISPLAYING UNREGISTER");
+                        }else{
+                            writeHomeHTML(client, user1.isOccupied(), user2.isOccupied());
+                            Serial.println("DISPLAYING HOME");
+                        }
+                        
                         break;
                     }
-
-
-                    // Check to see if the client request was "GET /H" or "GET /L":
-                    // Serial.println("Checking for GET");
-                    // Serial.println(containsGetRequest(http_buf));
-                    if (http_buf.startsWith("GET /H")) {
-                    digitalWrite(LED_BUILTIN, HIGH);               // GET /H turns the LED on
+                    if(http_buf.endsWith("/register")){
+                        display_page = REGISTER_PAGE;
+                    }else if(http_buf.endsWith("/unregister")){
+                        display_page = UNREGISTER_PAGE;
+                    }else if(http_buf.endsWith("/")){
+                        display_page = HOME_PAGE;
                     }
-                    if (http_buf.startsWith("GET /L")) {
-                    digitalWrite(LED_BUILTIN, LOW);                // GET /L turns the LED off
-                    }
+
                     if(http_buf.startsWith("Content")){            //Contains post request content
                         read_content = true;
                     }
+                    
                     
                 }
             // close the connection:

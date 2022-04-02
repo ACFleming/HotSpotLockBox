@@ -20,6 +20,7 @@ public:
     HotSpot(char* username, char* password, int locker_num);
     void setLoginDetails(char* username, char*password);
     int getLockerNumber();
+    bool isOccupied();
     char* getUsername();
     bool isLocked();
     void lock();
