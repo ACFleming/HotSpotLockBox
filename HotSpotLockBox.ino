@@ -4,6 +4,7 @@
 #include "LCD.hpp"
 #include "Motor.hpp"
 #include "Button.hpp"
+#include "ClientIO.hpp"
 
 
 
@@ -14,6 +15,7 @@
 #define WAIT_REGISTER 4
 #define MAIN_REGISTER 5
 #define STOP_REGISTER 6
+
 
 
 
@@ -29,6 +31,11 @@ HotSpot user2;
 
 char line0[21];
 char line1[21];
+
+char* ssid1 = "";
+char* pass1 = "";
+char* ssid2 = "";
+char* pass2 = "";
 
 
 
@@ -56,12 +63,15 @@ LCD lcd(rs, en, d4, d5, d6, d7);
 WiFiServer server (80);
 WiFiClient client;
 String http_buf;
+String content_buf;
 char* register_password;
 
 
-String toString(const IPAddress& address){
-  return String() + address[0] + "." + address[1] + "." + address[2] + "." + address[3];
-}
+// String toString(const IPAddress& address){
+//   return String() + address[0] + "." + address[1] + "." + address[2] + "." + address[3];
+// }
+
+
 
 void printMacAddress(byte mac[]) {
   for (int i = 5; i >= 0; i--) {
@@ -195,13 +205,13 @@ void loop()
     while (true) {
         delay(500);
         
-        Serial.print("Current state: ");
-        Serial.print(curr_state);
-        Serial.print(" Digital read: ");
-        Serial.print(digitalRead(SWITCH1));
-        Serial.print(" Server status: ");
-        Serial.print(status);
-        Serial.println();
+        // Serial.print("Current state: ");
+        // Serial.print(curr_state);
+        // Serial.print(" Digital read: ");
+        // Serial.print(digitalRead(SWITCH1));
+        // Serial.print(" Server status: ");
+        // Serial.print(status);
+        // Serial.println();
         if(curr_state == MAIN_LOGIN && digitalRead(SWITCH1)==LOW){ //Stop login and init registering
             Serial.println("STOPPING LOGIN");
             curr_state = STOP_LOGIN;
@@ -215,10 +225,10 @@ void loop()
             digitalWrite(LED1, LOW);
             digitalWrite(LED2, HIGH);
             //TODO read in login details
-            char ssid1[] = "DEADBEEF\0";     // the name of your network
-            char pass1[] = "DEADBEEF\0";     // the Wifi radio's status
-            char ssid2[] = "Testing\0";     // the name of your network
-            char pass2[] = "12345678\0";     // the Wifi radio's status
+            ssid1 = "DEADBEEF\0";     // the name of your network
+            pass1 = "DEADBEEF\0";     // the Wifi radio's status
+            ssid2 = "Testing\0";     // the name of your network
+            pass2 = "12345678\0";     // the Wifi radio's status
 
             //Create users from login details
             Serial.println("STRLEN");
@@ -234,7 +244,7 @@ void loop()
                 user2 = HotSpot();
             }
             curr_state = MAIN_LOGIN;
-            Serial.println("Back to the top");  
+            // Serial.println("Back to the top");  
             continue;
             
 
@@ -301,7 +311,7 @@ void loop()
                 lcd.setBothLines("Not connected", "");
             }
             lcd.show();
-            Serial.println("Back to the top");  
+            // Serial.println("Back to the top");  
             continue;
             
         }else if (curr_state == STOP_LOGIN){
@@ -312,7 +322,7 @@ void loop()
             lcd.show();
             delay(5000);
             curr_state = INIT_REGISTER;
-            Serial.println("Back to the top");  
+            // Serial.println("Back to the top");  
             continue;
             
 
@@ -336,11 +346,11 @@ void loop()
 
             
             server.begin();
-            delay(10000);
+            delay(5000);
             Serial.println("Server begun");
 
             curr_state = WAIT_REGISTER;
-            Serial.println("Back to the top");  
+            // Serial.println("Back to the top");  
             continue;
 
 
@@ -367,7 +377,7 @@ void loop()
 
                 }
             }
-            Serial.println("Back to the top");  
+            // Serial.println("Back to the top");  
             continue;
             
             
@@ -375,62 +385,63 @@ void loop()
         }else if (curr_state == MAIN_REGISTER){
             
             WiFiClient client = server.available();   // listen for incoming clients
-
+            if(WiFi.status() != WL_AP_CONNECTED){
+                curr_state = WAIT_REGISTER;
+                continue;
+            }
             
-            if (client) {                             // if you get a client,
-                Serial.println("new client");           // print a message out the serial port
-                String currentLine = "";                // make a String to hold incoming data from the client
-                while (client.connected()) {            // loop while the client's connected
-                    if (client.available()) {             // if there's bytes to read from the client,
-                        char c = client.read();             // read a byte, then
-                        Serial.write(c);                    // print it out the serial monitor
-                        if (c == '\n') {                    // if the byte is a newline character
-
-                            // if the current line is blank, you got two newline characters in a row.
-                            // that's the end of the client HTTP request, so send a response:
-                            if (currentLine.length() == 0) {
-                                // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
-                                // and a content-type so the client knows what's coming, then a blank line:
-                                client.println("HTTP/1.1 200 OK");
-                                client.println("Content-type:text/html");
-                                client.println();
-
-                                // the content of the HTTP response follows the header:
-                                client.print("yahoo <a href=\"/H\">here</a> turn the LED on<br>");
-                                client.print("Click <a href=\"/L\">here</a> turn the LED off<br>");
-
-                                // The HTTP response ends with another blank line:
-                                client.println();
-                                // break out of the while loop:
-                                break;
-                            }else {      // if you got a newline, then clear currentLine:
-                                currentLine = "";
+            if (client) {                             
+                Serial.println("Client connected");  
+                bool read_content = false;       
+                http_buf = "";
+                content_buf = "";                
+                while (client.connected()) {            
+                    http_buf = readResponseLine(client);          
+                    Serial.println(http_buf);
+                    if (http_buf.length() == 0) {
+                        if(read_content){
+                            Serial.println("Content");
+                            content_buf = readResponseLine(client);
+                            Serial.println(content_buf);
+                            char* u1 = "";
+                            char* p1 = "";
+                            if(parseUsernamePassword(content_buf, u1, p1)){
+                                Serial.println(u1);
+                                Serial.println(p1);
                             }
                         }
-                        else if (c != '\r') {    // if you got anything else but a carriage return character,
-                        currentLine += c;      // add it to the end of the currentLine
-                        }
 
-                        // Check to see if the client request was "GET /H" or "GET /L":
-                        if (currentLine.endsWith("GET /H")) {
-                        digitalWrite(LED_BUILTIN, HIGH);               // GET /H turns the LED on
-                        }
-                        if (currentLine.endsWith("GET /L")) {
-                        digitalWrite(LED_BUILTIN, LOW);                // GET /L turns the LED off
-                        }
+                        
+                        writeRegisterHTML(client);
+                        break;
                     }
+
+
+                    // Check to see if the client request was "GET /H" or "GET /L":
+                    // Serial.println("Checking for GET");
+                    // Serial.println(containsGetRequest(http_buf));
+                    if (http_buf.startsWith("GET /H")) {
+                    digitalWrite(LED_BUILTIN, HIGH);               // GET /H turns the LED on
+                    }
+                    if (http_buf.startsWith("GET /L")) {
+                    digitalWrite(LED_BUILTIN, LOW);                // GET /L turns the LED off
+                    }
+                    if(http_buf.startsWith("Content")){            //Contains post request content
+                        read_content = true;
+                    }
+                    
                 }
             // close the connection:
             client.stop();
-            Serial.println("client disconnected");
+            Serial.println("Client end request");
             }
             //TODO service webpage
-            Serial.println("Back to the top");  
+            // Serial.println("Back to the top");  
             continue;
             
         }else if(curr_state == STOP_REGISTER){ //TODO
             //write logins to flash
-            Serial.println("Back to the top");  
+            // Serial.println("Back to the top");  
             continue;
         }
         
