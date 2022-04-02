@@ -34,8 +34,8 @@ Servo servo1;
 HotSpot user1 = HotSpot();
 HotSpot user2 = HotSpot();
 
-char line0[21];
-char line1[21];
+// String line0 = "";
+// String line1 = "";
 
 String ssid1 = "";
 String pass1 = "";
@@ -212,8 +212,8 @@ void loop()
 
     ssid1 = "DEADBEEF";     // the name of your network
     pass1 = "DEADBEEF";     // the Wifi radio's status
-    ssid2 = "";     // the name of your network
-    pass2 = "";     // the Wifi radio's status
+    ssid2 = "Andrew";     // the name of your network
+    pass2 = "12345678";     // the Wifi radio's status
 
     if(ssid1.length() > 0 && pass1.length() > 0 ){
         Serial.println("LOADING USER1");
@@ -347,6 +347,8 @@ void loop()
             continue;
             
         }else if (curr_state == STOP_LOGIN){
+            motor1.setToAngle(0);
+            motor2.setToAngle(0);
             Serial.println("Disconnecting");
             WiFi.disconnect();
             WiFi.end();
