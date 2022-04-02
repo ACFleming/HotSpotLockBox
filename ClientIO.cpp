@@ -25,73 +25,89 @@ bool containsGetRequest(String haystack){
 
 
 void detailsForm(WiFiClient client){
-    client.print("<form id=\"login-form\" action=\"\" method=\"post\">");    
-    client.print("<label>Network name (SSID):</label>");
-    client.print("<input type=\"text\" name=\"username\" id=\"username-field\" placeholder=\"Username\">");
-    client.print("<br>");
-    client.print("<label>Network password:</label>");
-    client.print("<input type=\"password\" name=\"password\" id=\"password-field\" placeholder=\"Password\">");
-    client.print("<br>");
-    client.print("<label>Retype password: </label>");
-    client.print("<input type=\"password\" name=\"password2\" id=\"password-field\" placeholder=\"Password\">");
-    client.print("<input type=\"submit\" value=\"Login\" id=\"login-form-submit\">");
-    client.print("<br>");
-    client.print("<br>");
-    client.print("</form>");
+    client.println("<form id=\"login-form\" action=\"\" method=\"post\">");    
+    client.println("<label>Network name (SSID):</label>");
+    client.println("<input type=\"text\" name=\"username\" id=\"username-field\" placeholder=\"Username\">");
+    client.println("<br>");
+    client.println("<label>Network password:</label>");
+    client.println("<input type=\"password\" name=\"password\" id=\"password-field\" placeholder=\"Password\">");
+    client.println("<br>");
+    client.println("<label>Retype password: </label>");
+    client.println("<input type=\"password\" name=\"password2\" id=\"password-field\" placeholder=\"Password\">");
+    client.println("<input type=\"submit\" value=\"Login\" id=\"login-form-submit\">");
+    client.println("<br>");
+    client.println("<br>");
+    client.println("</form>");
 }
 
 void lockerAvailability(WiFiClient client, bool locker1_free, bool locker2_free){
-    client.print("Locker 1: ");
+    client.println("<br>");
+    client.println("Locker 1: ");
     if(locker1_free){
-        client.print("Free");
+        client.println("Free");
     }else{
-        client.print("Owned");
+        client.println("Owned");
     }
-    client.print("Locker 2: ");
+    client.println("<br>");
+    client.println("Locker 2: ");
     if(locker2_free){
-        client.print("Free");
+        client.println("Free");
     }else{
-        client.print("Owned");
+        client.println("Owned");
     }
 }
 
 void registerHref(WiFiClient client){
-    client.print("<a href=\"/register\">Click to register</a>");
+    client.println("<a href=\"/register\">Click to register</a>");
 }
 
 void unregisterHref(WiFiClient client){
-    client.print("<a href=\"/unregister\">Click to unregister</a>");
+    client.println("<a href=\"/unregister\">Click to unregister</a>");
 }
 
 void registerTitle(WiFiClient client){
-    client.print("<h1>Fill in the details to register your Hotspot to a locker</h1>");
-    client.print("<h2>You will be assigned the next available number</h2>");
+    client.println("<h1>Fill in the details to register your Hotspot to a locker</h1>");
+    client.println("<h2>You will be assigned the next available number</h2>");
 }
 
 void unregisterTitle(WiFiClient client){
-    client.print("<h1>Fill in the details to unregister your Hotspot from a locker</h1>");
-    client.print("<h2>Your locker will be open to new registrations</h2>");
+    client.println("<h1>Fill in the details to unregister your Hotspot from a locker</h1>");
+    client.println("<h2>Your locker will be open to new registrations</h2>");
 }
 
 void registerSuccess(WiFiClient client,int new_locker_num){
-    client.print("<h1>Register Successful</h1>");
-    client.print("<h2>Your locker number is</h2>");
-    client.print(new_locker_num);
+    client.println("<h1>Register Successful</h1>");
+    client.println("<h2>Your locker number is</h2>");
+    client.println(new_locker_num);
 
 }
 
 void unregisterSuccess(WiFiClient client){
-    client.print("<h1>Unregister Successful</h1>");
-    client.print("<h2>Your locker is open to new registrations</h2>");
+    client.println("<h1>Unregister Successful</h1>");
+    client.println("<h2>Your locker is open to new registrations</h2>");
 
 }
 
+void writeRegisterHTML(WiFiClient client){
+    //HTTP header
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-type:text/html");
+    
+    client.println();
 
+    registerTitle(client);
+    detailsForm(client);
+    unregisterHref(client);
+
+    client.println();
+
+
+}
 
 void writeRegisterHTML(WiFiClient client, bool locker1_free, bool locker2_free){
     //HTTP header
-    client.print("HTTP/1.1 200 OK");
-    client.print("Content-type:text/html");
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-type:text/html");
     
     client.println();
 
@@ -99,12 +115,26 @@ void writeRegisterHTML(WiFiClient client, bool locker1_free, bool locker2_free){
     detailsForm(client);
     unregisterHref(client);
     lockerAvailability(client, locker1_free, locker2_free);
+    
     client.println();
 
 
 }
 
 
+
+void writeUnregisterHTML(WiFiClient client){
+    //HTTP header
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-type:text/html");
+    
+    client.println();
+
+    unregisterTitle(client);
+    detailsForm(client);
+    registerHref(client);
+    client.println();
+}
 
 
 void writeUnregisterHTML(WiFiClient client, bool locker1_free, bool locker2_free){
@@ -121,11 +151,25 @@ void writeUnregisterHTML(WiFiClient client, bool locker1_free, bool locker2_free
     client.println();
 }
 
+void writeHomeHTML(WiFiClient client){
+    //HTTP header
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-type:text/html");
+    client.println();
+
+    registerHref(client);
+    unregisterHref(client);
+    client.println();  
+
+}
+
 
 void writeHomeHTML(WiFiClient client,  bool locker1_free, bool locker2_free){
     //HTTP header
     client.println("HTTP/1.1 200 OK");
     client.println("Content-type:text/html");
+    client.println();
+
     registerHref(client);
     unregisterHref(client);
     lockerAvailability(client, locker1_free, locker2_free);

@@ -429,26 +429,22 @@ void loop()
 
                             
                         }
-                        
+                        // writeHomeHTML(client);
                         if(display_page == REGISTER_PAGE ){
-                            Serial.println("DISPLAYING REGISTER");
-                            
                             writeRegisterHTML(client, user1.isOccupied(), user2.isOccupied());
                         }else if(display_page == UNREGISTER_PAGE){
                             writeUnregisterHTML(client, user1.isOccupied(), user2.isOccupied());
-                            Serial.println("DISPLAYING UNREGISTER");
                         }else{
                             writeHomeHTML(client, user1.isOccupied(), user2.isOccupied());
-                            Serial.println("DISPLAYING HOME");
                         }
                         
                         break;
                     }
-                    if(http_buf.endsWith("/register")){
+                    if(http_buf.startsWith("GET /register")){
                         display_page = REGISTER_PAGE;
-                    }else if(http_buf.endsWith("/unregister")){
+                    }else if(http_buf.startsWith("GET /unregister")){
                         display_page = UNREGISTER_PAGE;
-                    }else if(http_buf.endsWith("/")){
+                    }else if(http_buf.startsWith("GET / ")){
                         display_page = HOME_PAGE;
                     }
 
