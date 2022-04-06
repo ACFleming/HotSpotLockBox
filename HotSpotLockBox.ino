@@ -44,8 +44,8 @@ String pass2 = "";
 
 
 
-const int LED1 = 4;
-const int LED2 = 5;
+const int LED1 = 5;
+const int LED2 = 4;
 const int MOTOR1 = 2;
 const int MOTOR2 = 3;
 const int SWITCH1 = 14;
@@ -144,6 +144,8 @@ void setup()
     lcd.begin(16, 2);
     // turn on the cursor:
     lcd.cursor();
+    lcd.setBothLines("Testing", "Motors");
+    lcd.show();
 
     //MOTOR SETUP
     motor1.setToAngle(0);
